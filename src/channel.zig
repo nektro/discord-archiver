@@ -2,7 +2,7 @@ const std = @import("std");
 const zfetch = @import("zfetch");
 
 const discord = @import("./discord.zig");
-const json = @import("./json.zig");
+const json = @import("json");
 
 const Direction = enum {
     before,
