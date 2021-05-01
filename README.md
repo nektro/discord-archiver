@@ -14,6 +14,11 @@ An archiver for Discord. Written in Zig.
 $ ./discord-archiver channel <BOT_TOKEN> <CHANNEL_ID>
 ```
 
+2. Guilds
+```
+$ ./discord-archiver guild <BOT_TOKEN> <GUILD_ID>
+```
+
 ## Zig
 - https://ziglang.org/
 - https://github.com/ziglang/zig

@@ -14,7 +14,8 @@ pub fn main() !void {
 
         std.log.info("must use a command", .{});
         std.log.info("the available commands are:", .{});
-        std.log.info("\tchannel BOT_TOKEN CHANNEL_ID", .{});
+        std.log.info("\tguild BOT_TOKEN GUILD_ID", .{});
+        std.log.info("\tchannel BOT_TOKEN CHANNEL_ID...", .{});
         return;
     }
 
@@ -25,8 +26,13 @@ pub fn main() !void {
             return;
         }
     }
+
+    std.debug.print(ansi.style.FgRed, .{});
+    std.log.err("command '{s}' not found", .{args[0]});
+    std.debug.print(ansi.style.ResetFgColor, .{});
 }
 
 pub const commands = struct {
+    pub const guild = @import("./guild.zig");
     pub const channel = @import("./channel.zig");
 };

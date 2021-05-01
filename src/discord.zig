@@ -27,16 +27,36 @@ fn do_discord_request(alloc: *std.mem.Allocator, method: zfetch.Method, url: []c
 }
 //
 
+// https://discord.com/developers/docs/resources/guild#get-guild
+pub fn get_guild(alloc: *std.mem.Allocator, bot_token: []const u8, guild_id: []const u8) !?json.Value {
+    const url = try std.mem.join(alloc, "/", &.{ API_ROOT, "guilds", guild_id });
+    const val = try do_discord_request(alloc, .GET, url, bot_token);
+    return val;
+}
+
+// https://discord.com/developers/docs/resources/guild#get-guild-channels
+// GET/guilds/{guild.id}/channels
+pub fn get_guild_channels(alloc: *std.mem.Allocator, bot_token: []const u8, guild_id: []const u8) !?[]json.Value {
+    const url = try std.mem.join(alloc, "/", &.{ API_ROOT, "guilds", guild_id, "channels" });
+    const val = try do_discord_request(alloc, .GET, url, bot_token);
+    if (val != .Array) {
+        std.log.err("got non array type from discord", .{});
+        std.log.err("{}", .{val});
+        return null;
+    }
+    return val.Array;
+}
+
 // https://discord.com/developers/docs/resources/channel#get-channel
 pub fn get_channel(alloc: *std.mem.Allocator, bot_token: []const u8, channel_id: []const u8) !?json.Value {
-    const url = try std.mem.join(alloc, "", &.{ API_ROOT, "/channels/", channel_id });
+    const url = try std.mem.join(alloc, "/", &.{ API_ROOT, "channels", channel_id });
     const val = try do_discord_request(alloc, .GET, url, bot_token);
     return val;
 }
 
 // https://discord.com/developers/docs/resources/channel#get-channel-messages
 pub fn get_channel_messages(alloc: *std.mem.Allocator, bot_token: []const u8, channel_id: []const u8, direction: enum { before, after }, flake: []const u8) !?[]json.Value {
-    var url = try std.mem.join(alloc, "", &.{ API_ROOT, "/channels/", channel_id, "/messages" });
+    var url = try std.mem.join(alloc, "/", &.{ API_ROOT, "channels", channel_id, "messages" });
     if (flake.len > 0) {
         url = try std.mem.join(alloc, "", &.{ url, "?", std.meta.tagName(direction), "=", flake });
     }
