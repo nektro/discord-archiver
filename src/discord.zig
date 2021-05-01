@@ -1,5 +1,4 @@
 const std = @import("std");
-
 const zfetch = @import("zfetch");
 const json = @import("json");
 

@@ -1,7 +1,7 @@
 const std = @import("std");
+const json = @import("json");
 
 const discord = @import("./discord.zig");
-const json = @import("json");
 
 pub fn execute(alloc: *std.mem.Allocator, args: [][]u8) !void {
     const bot_token = args[0];
