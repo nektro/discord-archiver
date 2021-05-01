@@ -35,7 +35,7 @@ pub fn do(alloc: *std.mem.Allocator, bot_token: []const u8, channel_id: []const 
         var next_flake: []const u8 = "";
         while (try discord.get_channel_messages(alloc, bot_token, channel_id, .before, next_flake)) |messages| {
             if (messages.len == 0) break;
-            std.log.info("found {} messages starting at {s}", .{ messages.len, messages[0].get("id").?.String });
+            std.log.info("found {} messages starting at {s}, {} total so far", .{ messages.len, messages[0].get("id").?.String, message_list.items.len + messages.len });
             try message_list.appendSlice(messages);
             if (messages.len < 50) break;
             std.time.sleep(std.time.ns_per_s);
@@ -56,7 +56,7 @@ pub fn do(alloc: *std.mem.Allocator, bot_token: []const u8, channel_id: []const 
         var next_flake = id;
         while (try discord.get_channel_messages(alloc, bot_token, channel_id, .after, next_flake)) |messages| {
             if (messages.len == 0) break;
-            std.log.info("found {} messages starting at {s}, found {} total so far", .{ messages.len, messages[0].get("id").?.String, message_list.items.len + messages.len });
+            std.log.info("found {} messages starting at {s}, {} total so far", .{ messages.len, messages[0].get("id").?.String, message_list.items.len + messages.len });
             try message_list.appendSlice(messages);
             if (messages.len < 50) break;
             std.time.sleep(std.time.ns_per_s);
