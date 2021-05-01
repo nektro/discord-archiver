@@ -1,13 +1,7 @@
 const std = @import("std");
-const zfetch = @import("zfetch");
 
 const discord = @import("./discord.zig");
 const json = @import("json");
-
-const Direction = enum {
-    before,
-    after,
-};
 
 pub fn execute(alloc: *std.mem.Allocator, args: [][]u8) !void {
     const bot_token = args[0];
@@ -18,7 +12,7 @@ pub fn execute(alloc: *std.mem.Allocator, args: [][]u8) !void {
 }
 
 pub fn do(alloc: *std.mem.Allocator, bot_token: []const u8, channel_id: []const u8) !void {
-    const channel = try get_channel(alloc, bot_token, channel_id);
+    const channel = try discord.get_channel(alloc, bot_token, channel_id);
     if (channel.?.get("message")) |msg| {
         std.log.warn("{}", .{channel});
         return;
@@ -39,7 +33,7 @@ pub fn do(alloc: *std.mem.Allocator, bot_token: []const u8, channel_id: []const 
     if ((try f.getEndPos()) == 0) {
         // full sync
         var next_flake: []const u8 = "";
-        while (try get_messages(alloc, bot_token, channel_id, .before, next_flake)) |messages| {
+        while (try discord.get_channel_messages(alloc, bot_token, channel_id, .before, next_flake)) |messages| {
             if (messages.len == 0) break;
             std.log.info("found {} messages starting at {s}", .{ messages.len, messages[0].get("id").?.String });
             try message_list.appendSlice(messages);
@@ -60,7 +54,7 @@ pub fn do(alloc: *std.mem.Allocator, bot_token: []const u8, channel_id: []const 
 
         try f.seekTo(try f.getEndPos());
         var next_flake = id;
-        while (try get_messages(alloc, bot_token, channel_id, .after, next_flake)) |messages| {
+        while (try discord.get_channel_messages(alloc, bot_token, channel_id, .after, next_flake)) |messages| {
             if (messages.len == 0) break;
             std.log.info("found {} messages starting at {s}, found {} total so far", .{ messages.len, messages[0].get("id").?.String, message_list.items.len + messages.len });
             try message_list.appendSlice(messages);
@@ -80,47 +74,4 @@ pub fn do(alloc: *std.mem.Allocator, bot_token: []const u8, channel_id: []const 
 
 fn range(len: usize) []const u0 {
     return @as([*]u0, undefined)[0..len];
-}
-
-fn get_channel(alloc: *std.mem.Allocator, bot_token: []const u8, channel_id: []const u8) !?json.Value {
-    const url = try std.mem.join(alloc, "", &.{ discord.API_ROOT, "/channels/", channel_id });
-    const val = try do_discord_request(alloc, .GET, url, bot_token);
-    return val;
-}
-
-fn get_messages(alloc: *std.mem.Allocator, bot_token: []const u8, channel_id: []const u8, direction: Direction, flake: []const u8) !?[]json.Value {
-    var url = try std.mem.join(alloc, "", &.{
-        discord.API_ROOT, "/channels/",
-        channel_id,       "/messages",
-    });
-    if (flake.len > 0) {
-        url = try std.mem.join(alloc, "", &.{ url, "?", std.meta.tagName(direction), "=", flake });
-    }
-    const val = try do_discord_request(alloc, .GET, url, bot_token);
-    if (val != .Array) {
-        std.log.err("got non array type from discord", .{});
-        std.log.err("{}", .{val});
-        return null;
-    }
-    return val.Array;
-}
-
-fn do_discord_request(alloc: *std.mem.Allocator, method: zfetch.Method, url: []const u8, bot_token: []const u8) !json.Value {
-    const req = try zfetch.Request.init(alloc, url, null);
-    defer req.deinit();
-
-    var headers = zfetch.Headers.init(alloc);
-    defer headers.deinit();
-    try headers.appendValue("Authorization", try std.mem.join(alloc, " ", &.{ "Bot", bot_token }));
-
-    try req.do(.GET, headers, null);
-    const r = req.reader();
-
-    const body_content = try r.readAllAlloc(alloc, std.math.maxInt(usize));
-    const val = json.parse(alloc, body_content) catch |e| {
-        std.log.alert("caught error: {}, dumping response content", .{e});
-        std.log.alert("{s}", .{body_content});
-        return json.Value{ .Null = void{} };
-    };
-    return val;
 }
