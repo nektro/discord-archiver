@@ -75,8 +75,6 @@ pub fn do(alloc: *std.mem.Allocator, bot_token: []const u8, channel_id: []const 
         try w.print("{}\n", .{message_list.items[message_list.items.len - 1 - i]});
     }
 
-    // 832802969736052756
-
     std.log.info("done", .{});
 }
 
