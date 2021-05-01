@@ -11,8 +11,13 @@ const Direction = enum {
 
 pub fn execute(alloc: *std.mem.Allocator, args: [][]u8) !void {
     const bot_token = args[0];
-    const channel_id = args[1];
 
+    for (range(args.len - 1)) |_, i| {
+        try do(alloc, bot_token, args[i + 1]);
+    }
+}
+
+pub fn do(alloc: *std.mem.Allocator, bot_token: []const u8, channel_id: []const u8) !void {
     const channel = try get_channel(alloc, bot_token, channel_id);
     if (channel.?.get("message")) |msg| {
         std.log.warn("{}", .{channel});
