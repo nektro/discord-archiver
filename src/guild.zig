@@ -20,7 +20,7 @@ pub fn execute(alloc: *std.mem.Allocator, args: [][]u8) !void {
     if (try discord.get_guild_channels(alloc, bot_token, guild_id)) |response| {
         for (response) |chan| {
             const channel_id = chan.get("id").?.String;
-            const ctype = chan.get("type").?.Number;
+            const ctype = chan.get("type").?.Int;
             if (ctype != 0) {
                 continue;
             }
