@@ -10,7 +10,7 @@ pub fn execute(alloc: *std.mem.Allocator, args: [][]u8) !void {
     const guild_id = args[1];
 
     const guild = try discord.get_guild(alloc, bot_token, guild_id);
-    if (guild.?.get("message")) |msg| {
+    if (guild.?.get("message")) |_| {
         std.log.warn("{}", .{guild});
         return;
     }

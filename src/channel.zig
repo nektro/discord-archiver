@@ -13,7 +13,7 @@ pub fn execute(alloc: *std.mem.Allocator, args: [][]u8) !void {
 
 pub fn do(alloc: *std.mem.Allocator, bot_token: []const u8, channel_id: []const u8) !void {
     const channel = try discord.get_channel(alloc, bot_token, channel_id);
-    if (channel.?.get("message")) |msg| {
+    if (channel.?.get("message")) |_| {
         std.log.warn("{}", .{channel});
         return;
     }
