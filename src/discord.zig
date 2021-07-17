@@ -13,7 +13,7 @@ fn do_discord_request(alloc: *std.mem.Allocator, method: zfetch.Method, url: []c
     defer headers.deinit();
     try headers.appendValue("Authorization", try std.mem.join(alloc, " ", &.{ "Bot", bot_token }));
 
-    try req.do(.GET, headers, null);
+    try req.do(method, headers, null);
     const r = req.reader();
 
     const body_content = try r.readAllAlloc(alloc, std.math.maxInt(usize));
