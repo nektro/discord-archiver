@@ -1,5 +1,6 @@
 const std = @import("std");
 const json = @import("json");
+const range = @import("range").range;
 
 const discord = @import("./discord.zig");
 
@@ -70,8 +71,4 @@ pub fn do(alloc: *std.mem.Allocator, bot_token: []const u8, channel_id: []const 
     }
 
     std.log.info("done", .{});
-}
-
-fn range(len: usize) []const u0 {
-    return @as([*]u0, undefined)[0..len];
 }
